@@ -1,5 +1,7 @@
-dash
-plotly
+numpy
 pandas
 geopandas
+plotly
+
+dash
 gunicorn
