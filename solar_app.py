@@ -12,6 +12,8 @@ girec_exp = pd.read_pickle("output/girec_exp.pickle")
 communes_lin = pd.read_pickle("output/communes_lin.pickle")
 communes_exp = pd.read_pickle("output/communes_exp.pickle")
 
+borders = communes_lin[['geometry']]
+
 # -------------- Styling -------------------------------------------
 
 app = Dash(
@@ -82,7 +84,7 @@ app.layout = dbc.Container([
             ),
         ],
         className="g-0",
-        style={"width": "100%"},
+        style={"width": "120%"},
     ),
     # Title
     dbc.Row(
@@ -107,7 +109,7 @@ app.layout = dbc.Container([
                     "opacity": "unset",
                 }
             ),
-            width={"size": 10, "offset": 0},
+            width={"size": 12, "offset": 0},
         ),
     ),
     # Potential input
@@ -122,8 +124,9 @@ app.layout = dbc.Container([
                                  html.A("Plan directeur de l'énergie 2020-2030", href="https://www.ge.ch/document/plan-directeur-energie-2020-2030",
                                         target="_blank")]), 'value': 3},
             {'label': html.Span(
-                [" 3000 [MWc], soit 3000 [GWh/an], selon ", html.A("Toit solaire", href="https://www.uvek-gis.admin.ch/BFE/sonnendach/?lang=fr", target="_blank")]),
-             'value': 1},
+                [" 3000 [MWc], soit 3000 [GWh/an], selon ",
+                 html.A("Toit solaire", href="https://www.uvek-gis.admin.ch/BFE/sonnendach/?lang=fr", target="_blank")]),
+                'value': 1},
         ],
         value=3,
         labelStyle={'display': 'block'}  # To display each option on a new line
@@ -139,24 +142,47 @@ app.layout = dbc.Container([
                     "opacity": "unset",
                 }
             ),
-            width={"size": 10, "offset": 0},
+            width={"size": 12, "offset": 0},
         ),
     ),
-    # Granularity input
-    dcc.Markdown('''
-            ##### Découpage du territoire
-            Le territoire peut être découpé selon les :
-            '''),
-    dcc.RadioItems(
-        id='granularity-input',
-        options=[
-            {'label': ' Sous-secteurs statistiques (GIREC)', 'value': "girec"},
-            {'label': ' Communes', 'value': "communes"},
-        ],
-        value="communes",
-        inline=True,
-        labelStyle={'margin-right': '10px'}  # Add space between buttons
-    ),
+
+    # Selection side by side
+    dbc.Row([
+        # Granularity input
+        dbc.Col(
+            [
+                dcc.Markdown("##### Découpage du territoire"),
+                dcc.RadioItems(
+                    id='granularity-input',
+                    options=[
+                        {'label': ' Communes', 'value': "communes"},
+                        {'label': ' Sous-secteurs statistiques (GIREC)', 'value': "girec"},
+                    ],
+                    value="communes",
+                    inline=True,
+                    labelStyle={'margin-right': '10px'}  # Add space between options
+                ),
+            ],
+            width=5
+        ),
+        # Borders input
+        dbc.Col(
+            [
+                dcc.Markdown("##### Frontières des communes"),
+                dcc.RadioItems(
+                    id='borders-input',
+                    options=[
+                        {'label': ' Afficher', 'value': True},
+                        {'label': ' Masquer', 'value': False},
+                    ],
+                    value=False,
+                    inline=True,
+                    labelStyle={'margin-right': '10px'}  # Add space between options
+                ),
+            ],
+            width={"size": 5, "offset": 2}  # Offset to start at the middle
+        ),
+    ], className="g-2"),
     # Yellow line
     dbc.Row(
         dbc.Col(
@@ -168,37 +194,48 @@ app.layout = dbc.Container([
                     "opacity": "unset",
                 }
             ),
-            width={"size": 10, "offset": 0},
+            width={"size": 12, "offset": 0},
         ),
     ),
-    # Metric input
-    dcc.Markdown('''
-            ##### Carte à afficher
-            '''),
-    dcc.RadioItems(
-        id='metric-input',
-        options=[
-            {'label': ' Potentiel installable [MWc]', 'value': "potential"},
-            {'label': ' Capacité installée [MWc]', 'value': "power"},
-            {'label': ' Ratio capacité installée / potentiel installable [%]', 'value': "ratio"},
-        ],
-        value="power",
-    ),
-    html.Div([
-        dcc.Input(
-            id='min-value-input',
-            type='number',
-            placeholder='Min',
-            value=None,  # No default value
-            style={'margin-left': '400px', 'margin-right': '10px'}  # Adds some spacing
+    # Selection side by side
+    dbc.Row([
+        # Metric input
+        dbc.Col(
+            [
+                dcc.Markdown("##### Carte à afficher"),
+                dcc.RadioItems(
+                    id='metric-input',
+                    options=[
+                        {'label': ' Potentiel installable [MWc]', 'value': "potential"},
+                        {'label': ' Capacité installée [MWc]', 'value': "power"},
+                        {'label': ' Ratio capacité installée / potentiel installable [%]', 'value': "ratio"},
+                    ],
+                    value="ratio",
+                ),
+            ],
+            width=5
         ),
-        dcc.Input(
-            id='max-value-input',
-            type='number',
-            placeholder='Max',
-            value=None  # No default value
+        # Range scale input
+        dbc.Col(
+            [
+                dcc.Markdown("##### Échelle"),
+                dcc.Input(
+                    id='min-value-input',
+                    type='number',
+                    placeholder='Min',
+                    value=None,
+                    style={'margin-left': '0x', 'margin-right': '10px'}  # Adds some spacing
+                ),
+                dcc.Input(
+                    id='max-value-input',
+                    type='number',
+                    placeholder='Max',
+                    value=None
+                ),
+            ],
+            width={"size": 5, "offset": 2}  # Offset to start at the middle
         ),
-    ]),
+    ], className="g-2"),
     # Yellow line
     dbc.Row(
         dbc.Col(
@@ -210,7 +247,7 @@ app.layout = dbc.Container([
                     "opacity": "unset",
                 }
             ),
-            width={"size": 10, "offset": 0},
+            width={"size": 12, "offset": 0},
         ),
     ),
     # Tabs
@@ -232,7 +269,7 @@ app.layout = dbc.Container([
             ),
         ],
         id="tabs",
-        active_tab="tab-past",
+        active_tab="tab-future",
     ),
 
     html.Div(id="tabs-content", className="p-5"),
@@ -258,15 +295,13 @@ def render_content(tab, metric):
 
         html.Div(
             [
-                dcc.Markdown('''
-                    ##### Sélection de l'année
-                    '''),
+                dcc.Markdown("##### Sélection de l'année"),
                 dcc.Slider(
                     id='year-input',
                     min=min_year,
                     max=max_year,
                     step=1,
-                    value=2024,
+                    value=2025,
                     marks={year: str(year) for year in range(min_year, max_year + 1) if year % 5 == 0},  # marks for multiples of 5
                     tooltip={"placement": "bottom",
                              "always_visible": True,
@@ -282,9 +317,20 @@ def render_content(tab, metric):
 
         # Model selection
         html.Div([
-            dcc.Markdown('''
-                ##### Modèle de croissance
-                '''),
+            dbc.Row(
+                dbc.Col(
+                    html.Hr(
+                        style={
+                            "borderWidth": "0.2vh",
+                            "width": "100%",
+                            "borderColor": "#97A7B3",
+                            "opacity": "unset",
+                        }
+                    ),
+                    width={"size": 12, "offset": 0},
+                ),
+            ),
+            dcc.Markdown("##### Modèle de croissance"),
             dcc.RadioItems(
                 id='model-input',
                 options=[
@@ -295,11 +341,24 @@ def render_content(tab, metric):
             style={'display': 'block' if tab == 'tab-future' else 'none'}
         ),
 
-        # Plots side by side
-        html.Div([
-            html.Div(dcc.Graph(id='plot-expansion'), style={'width': '49%'}),
-            html.Div(dcc.Graph(id='plot-share'), style={'width': '49%'})
-        ], style={'display': 'flex', 'justify-content': 'space-between', 'margin-bottom': '20px'}),
+        dbc.Row(
+            dbc.Col(
+                html.Hr(
+                    style={
+                        "borderWidth": "0.2vh",
+                        "width": "100%",
+                        "borderColor": "#97A7B3",
+                        "opacity": "unset",
+                    }
+                ),
+                width={"size": 12, "offset": 0},
+            ),
+        ),
+
+        # Plots on top and bottom
+        dcc.Graph(id='plot-expansion'),
+        dcc.Graph(id='plot-share'),
+
     ])
 
 
@@ -308,13 +367,14 @@ def render_content(tab, metric):
     Output('map', 'figure'),
     Input('year-input', 'value'),
     Input('granularity-input', 'value'),
+    Input('borders-input', 'value'),
     Input('metric-input', 'value'),
     Input('model-input', 'value'),
     Input('potential-input', 'value'),
     Input('min-value-input', 'value'),
     Input('max-value-input', 'value'),
 )
-def update_map(year, granularity, metric, model, potential_scaling, min_scale, max_scale):
+def update_map(year, granularity, show_borders, metric, model, potential_scaling, min_scale, max_scale):
     if granularity == "communes" and model == "linear":
         data = communes_lin
     elif granularity == "communes" and model == "exponential":
@@ -329,13 +389,29 @@ def update_map(year, granularity, metric, model, potential_scaling, min_scale, m
     if metric == "potential":
         data_to_plot = "potential"
         units = "MWc"
+        color_scale = "oranges"
     elif metric == "power":
         data_to_plot = year
         units = "MWc"
+        color_scale = "oranges"
     else:
         data["ratio"] = 100 * data[year] / data["potential"]
         data_to_plot = "ratio"
         units = "%"
+
+        if year < 2025:
+            color_scale = "blues"
+        else:
+            objective_2030 = 0.35
+            objective_2050 = 0.95
+            y_objective = objective_2030 + ((year - 2030) * (objective_2050 - objective_2030)) / (2050 - 2030)
+            smoothing = 0.02 / y_objective
+            color_scale = [
+                (0.0, "darkred"),
+                (y_objective - smoothing, "lightcoral"),
+                (y_objective + smoothing, "lightgreen"),
+                (1.0, "darkgreen"),
+            ]
 
     try:
         range_for_plot = [min_scale, max_scale]
@@ -348,15 +424,35 @@ def update_map(year, granularity, metric, model, potential_scaling, min_scale, m
         locations=data.index,
         color=data_to_plot,
         range_color=range_for_plot,
-        color_continuous_scale="blues" if metric == "ratio" else "oranges",
+        color_continuous_scale=color_scale,
         opacity=0.7,
         mapbox_style="open-street-map",
-        center={"lat": 46.2244, "lon": 6.1432},
-        zoom=11.2,
+        center={"lat": 46.2250, "lon": 6.1432},
+        zoom=10.9,
         labels={str(data_to_plot): units}
     )
 
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, height=1200)
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, height=800, width=1200)
+
+    if show_borders:
+        for geom in borders.geometry:
+            if geom.geom_type == 'Polygon':
+                x, y = geom.exterior.xy
+            elif geom.geom_type == 'MultiPolygon':
+                # Commune Céligny has multiple polygons
+                for polygon in geom.geoms:
+                    x, y = polygon.exterior.xy
+
+            fig.add_trace(
+                go.Scattermapbox(
+                    lon=list(x),
+                    lat=list(y),
+                    mode='lines',
+                    line=dict(color='black', width=2),
+                    hoverinfo='skip',
+                    showlegend=False,
+                )
+            )
 
     return fig
 
@@ -383,7 +479,7 @@ def update_plots(year, granularity, model):
     fig_expansion = px.line(
         x=total_capacity_by_year.index,
         y=total_capacity_by_year.values,
-        title="Capacité photovoltaïque installée à Genève (2005-2050)",
+        title="Expansion des capacités photovoltaïques à Genève",
         labels={"x": "Année", "y": "[MWc]"},
         template="plotly_white"
     )
@@ -394,8 +490,8 @@ def update_plots(year, granularity, model):
             x=[2030, 2050],
             y=[350, 1000],
             mode="markers+text",
-            marker=dict(color="red", size=10, symbol="circle"),
-            text=["Objectif 2030<br>350 MWc", "Objectif 2050<br>1000 MWc"],
+            marker=dict(color="green", size=10, symbol="circle"),
+            text=["<b>Objectif 2030<br>350 MWc</b>", "<b>Objectif 2050<br>1000 MWc</b>"],
             textposition="middle left"
         )
     )
