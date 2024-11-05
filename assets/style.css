@@ -1,0 +1,20 @@
+/* Style the filled (selected) portion of the dcc.Slider component */
+.rc-slider-track {
+    background-color: #F3DE8A !important; /* Filled (selected) portion color */
+}
+
+.rc-slider-handle {
+    border-color: #F3DE8A !important; /* Handle color to match the track */
+}
+
+/* Increase the font size of the slider marks */
+.rc-slider-mark-text {
+    font-size: 15px; /* Adjust to your desired size */
+    font-weight: bold;
+    color: #97A7B3;  /* Optional: Change mark color */
+}
+
+/* Add extra spacing below the slider */
+.slider-container {
+    margin-bottom: 30px; /* Adjust the space as needed */
+}
